@@ -1,20 +1,23 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-import Home from './pages/home';
-import GeneralPlanner from './pages/GeneralPlanner';
+import Sidebar from './components/SideBar';
 import LocalPlanner from './pages/LocalPlanner';
+import GeneralPlanner from './pages/GeneralPlanner';
+import Home from './pages/home';
 
-const App: React.FC = () => {
+export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/general" element={<GeneralPlanner />} />
-        <Route path="/local" element={<LocalPlanner />} />
-      </Routes>
+      <div style={{ display: 'flex' }}>
+        <Sidebar />
+        <div style={{ marginLeft: 200, padding: '20px', flex: 1 }}>
+          <Routes>
+            <Route path="/home" element={<Home />} />
+            <Route path="/local" element={<LocalPlanner />} />
+            <Route path="/general" element={<GeneralPlanner />} />
+          </Routes>
+        </div>
+      </div>
     </Router>
   );
-};
-
-export default App;
+}

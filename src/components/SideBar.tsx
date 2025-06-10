@@ -8,6 +8,7 @@ export default function Sidebar() {
       <h2>Planner App</h2>
       <nav>
         <ul>
+          <li><Link to="/home">Home</Link></li>
           <li><Link to="/local">Local Planner</Link></li>
           <li><Link to="/general">General Planner</Link></li>
         </ul>
