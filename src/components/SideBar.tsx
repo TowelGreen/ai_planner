@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Sidebar.css'; // Or Sidebar.module.css
+import './Sidebar.css'; 
+import '../index.css';
+
+
 
 export default function Sidebar() {
   return (

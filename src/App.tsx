@@ -4,13 +4,15 @@ import Sidebar from './components/SideBar';
 import LocalPlanner from './pages/LocalPlanner';
 import GeneralPlanner from './pages/GeneralPlanner';
 import Home from './pages/home';
+import './App.css'; 
+import'./index.css';
 
 export default function App() {
   return (
     <Router>
-      <div style={{ display: 'flex' }}>
+      <div className="app-layout">
         <Sidebar />
-        <div style={{ marginLeft: 200, padding: '20px', flex: 1 }}>
+        <div className="main-content">
           <Routes>
             <Route path="/home" element={<Home />} />
             <Route path="/local" element={<LocalPlanner />} />

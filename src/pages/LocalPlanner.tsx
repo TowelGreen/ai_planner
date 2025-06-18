@@ -1,5 +1,6 @@
 import React from 'react'
-import '../styles/Local.module.css';
+import '../styles/Local.module.css'
+import'../index.css';
 
 const LocalPlanner: React.FC = () => {
   return (
