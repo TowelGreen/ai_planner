@@ -14,6 +14,7 @@ export default function App() {
         <Sidebar />
         <div className="main-content">
           <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/local" element={<LocalPlanner />} />
             <Route path="/general" element={<GeneralPlanner />} />

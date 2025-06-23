@@ -1,23 +1,46 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import styles from "../styles/Home.module.css";
 
 const Home: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-purple-300 via-pink-200 to-yellow-100 text-center p-4">
-      <h1 className="text-4xl font-bold mb-4">✨ AI Date Planner ✨</h1>
-      <p className="text-lg mb-8">Get personalized date ideas—locally or anywhere!</p>
+    <div className="home-container">
+      {/* Chat area */}
+      <div className="chat-window">
+        <div className="chat-header">
+          <div className="chat-emoji">🤖</div>
+          <h1 className="chat-title">✨ AI Date Planner ✨</h1>
+          <p className="chat-subtitle">
+            Your personal assistant for planning perfect dates.
+          </p>
 
-      <div className="flex gap-4">
-        <Link to="/general">
-          <button className="bg-indigo-600 text-white px-6 py-2 rounded-2xl shadow-md hover:bg-indigo-700 transition">
-            General Planner
-          </button>
-        </Link>
-        <Link to="/local">
-          <button className="bg-green-600 text-white px-6 py-2 rounded-2xl shadow-md hover:bg-green-700 transition">
-            Local Planner
-          </button>
-        </Link>
+          <div className="button-group">
+            <Link to="/general">
+              <button className="nav-button primary">Geneeeral Planner</button>
+            </Link>
+            <Link to="/local">
+              <button className="nav-button secondary">Local Planner</button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Sample conversation */}
+        <div className="chat-message bot">
+          Hi! I can help you plan your next perfect date.
+        </div>
+        <div className="chat-message user">
+          Show me local dinner spots in LA.
+        </div>
+      </div>
+
+      {/* Input bar */}
+      <div className={styles.inputBar}>
+        <input
+          type="text"
+          placeholder="Ask me anything..."
+          className={styles.inputBox}
+        />
+        <button className={styles.sendButton}>Send</button>
       </div>
     </div>
   );
