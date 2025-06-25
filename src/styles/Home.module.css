@@ -1,171 +1,102 @@
-/* Layout */
-.home-container {
+.chatContainer {
+  position: relative;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(to right, #d8b4fe, #fbcfe8, #fef9c3);
-  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #e9d5ff, #fce7f3, #fef3c7);
 }
 
-/* Chat message area */
-.chat-window {
+.messagesArea {
   flex: 1;
-  overflow-y: auto;
   padding: 24px;
-  max-width: 700px;
-  margin: 0 auto;
-  padding-bottom: 100px; /* space for input */
-}
-
-/* Header and intro section */
-.chat-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.chat-emoji {
-  font-size: 48px;
-  margin-bottom: 8px;
-}
-
-.chat-title {
-  font-size: 24px;
-  margin-bottom: 4px;
-}
-
-.chat-subtitle {
-  font-size: 16px;
-  color: #333;
-}
-
-/* Buttons */
-.button-group {
+  overflow-y: auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 12px;
-  margin-top: 12px;
 }
 
-.nav-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.nav-button.primary {
-  background-color: #4f46e5;
-  color: white;
-}
-
-.nav-button.secondary {
-  background-color: #16a34a;
-  color: white;
-}
-
-/* Chat messages */
-.chat-message {
-  max-width: 80%;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  border-radius: 16px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.chat-message.bot {
-  background-color: white;
-  align-self: flex-start;
-}
-
-.chat-message.user {
-  background-color: #e0e7ff;
-  align-self: flex-end;
-  margin-left: auto;
-}
-
-/* Input bar */
-.chat-input-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+.botBubble {
   background: white;
-  border-top: 1px solid #ddd;
+  color: black;
+  max-width: 75%;
   padding: 12px 16px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  z-index: 10;
+  border-radius: 16px;
+  align-self: flex-start;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.chat-input-bar input {
-  flex: 1;
-  max-width: 600px;
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  font-size: 14px;
-  outline: none;
+.userBubble {
+  background: #e0e7ff;
+  color: black;
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  align-self: flex-end;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.chat-input-bar button {
-  padding: 10px 20px;
-  background-color: #9333ea;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.typing {
+  font-style: italic;
+  opacity: 0.6;
+  animation: blink 1s steps(1) infinite;
 }
 
-.chat-input-bar button:hover {
-  background-color: #7e22ce;
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
 }
+
 .inputBar {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 16px;
   background: white;
   border-top: 1px solid #e5e7eb;
+  z-index: 10;
   display: flex;
   justify-content: center;
-  z-index: 10;
+  padding: 16px;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  max-width: 700px;
+  width: 100%;
+  gap: 12px;
 }
 
 .inputBox {
   flex: 1;
-  max-width: 700px;
   padding: 12px 16px;
   border: 1px solid #d1d5db;
   border-radius: 9999px;
   font-size: 15px;
   outline: none;
+  resize: none;
+  line-height: 1.5;
+  overflow-y: hidden;
+  max-height: 200px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s ease;
-}
-
-.inputBox:focus {
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.5);
 }
 
 .sendButton {
-  margin-left: 12px;
-  padding: 12px 20px;
-  background-color: #7c3aed;
+  background: #7c3aed;
   color: white;
+  padding: 12px 20px;
   border: none;
   border-radius: 9999px;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .sendButton:hover {
-  background-color: #6d28d9;
+  background: #6d28d9;
 }
