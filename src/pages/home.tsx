@@ -1,41 +1,58 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/Home.module.css";
 
+interface Message {
+  type: "user" | "bot";
+  text: string;
+}
+
 const Home: React.FC = () => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<Message[]>([
+    { type: "bot", text: "🤖 Hi! I’m your AI Date Planner." },
+  ]);
+  const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const [messages, setMessages] = useState<
-    { text: string; from: "user" | "bot" }[]
-  >([]);
-  const [isTyping, setIsTyping] = useState(false);
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const handleInput = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  };
+  const handleSend = async () => {
+    if (!input.trim()) return;
 
-  const handleSend = () => {
-    const text = textareaRef.current?.value.trim();
-    if (!text) return;
+    // Clear input right away
+    setInput("");
 
-    setMessages((prev) => [...prev, { text, from: "user" }]);
-    textareaRef.current!.value = "";
-    handleInput();
+    // Add user message
+    setMessages((prev) => [...prev, { type: "user", text: input }]);
 
-    // Fake bot response
-    setIsTyping(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("http://localhost:8000/api/plan-date", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
+      });
+
+      const data = await res.json();
+
+      if (data.followUp) {
+        setMessages((prev) => [...prev, { type: "bot", text: data.followUp }]);
+      } else if (data.summary) {
+        setMessages((prev) => [...prev, { type: "bot", text: data.summary }]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { type: "bot", text: "Sorry, I couldn't find any recommendations." },
+        ]);
+      }
+    } catch (error) {
+      console.error(error);
       setMessages((prev) => [
         ...prev,
-        { text, from: "user" },
-        { text: "Thanks! I’ll find some ideas for you. 💡", from: "bot" },
+        { type: "bot", text: "⚠️ Server error. Please try again later." },
       ]);
-      setIsTyping(false);
-    }, 1000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -45,39 +62,29 @@ const Home: React.FC = () => {
     }
   };
 
-  // Auto-scroll to bottom
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
-
   return (
-    <div className={styles.chatContainer}>
-      <div className={styles.messagesArea}>
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={
-              msg.from === "user" ? styles.userBubble : styles.botBubble
-            }
-          >
-            {msg.text}
-          </div>
-        ))}
-
-        {isTyping && (
-          <div className={styles.botBubble}>
-            <span className={styles.typing}>...</span>
-          </div>
-        )}
-
-        <div ref={scrollRef} />
+    <div className={styles.homeWrapper}>
+      <div className={styles.chatContainer}>
+        <div className={styles.messagesArea}>
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={
+                msg.type === "bot" ? styles.botBubble : styles.userBubble
+              }
+            >
+              {msg.text}
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       <div className={styles.inputBar}>
         <div className={styles.inputWrapper}>
           <textarea
-            ref={textareaRef}
-            onInput={handleInput}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             className={styles.inputBox}

@@ -1,100 +1,123 @@
-# main.py
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import requests
+from pydantic import BaseModel
 import os
-from dotenv import load_dotenv
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-import openai
 import requests
-import os
+from openai import OpenAI
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
 
-# Initialize FastAPI app
+load_dotenv() 
+
+# Initialize OpenAI client
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+# Yelp API info
+YELP_API_KEY = os.environ["YELP_API_KEY"]
+YELP_ENDPOINT = "https://api.yelp.com/v3/businesses/search"
+
+# FastAPI setup
 app = FastAPI()
 
-# CORS middleware (adjust origin to match your frontend)
+# CORS (allow frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Set OpenAI key
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Yelp key (used in headers)
-YELP_API_KEY = os.getenv("YELP_API_KEY")
-YELP_API_URL = "https://api.yelp.com/v3/businesses/search"
+class Query(BaseModel):
+    message: str
 
 @app.post("/api/plan-date")
-async def plan_date(request: Request):
-    body = await request.json()
-    user_question = body.get("question", "")
+def plan_date(query: Query):
+    user_message = query.message
 
-    # Step 1: Extract term + location via OpenAI
-    extraction_prompt = f"""
-You are an assistant that extracts search terms and locations from date planning questions.
+    # 1️⃣ Generate extraction or follow-up question
+    prompt = f"""
+You are an intelligent AI Date Planner.
 
-Only respond in this format:
+Your job is to suggest creative, enjoyable, and thoughtful date experiences—not just restaurants.
+
+If the user's request is too vague, ask **one friendly follow-up question** (like "What vibe are you going for—romantic, adventurous, or chill?").
+
+When there is enough info, extract:
+
 term=<search term>, location=<location>
 
-Examples:
-"Can you find a romantic sushi place in LA?" → term=romantic sushi, location=LA
-"I want a quiet cafe in San Francisco" → term=quiet cafe, location=San Francisco
-"Show me rooftop bars near New York" → term=rooftop bars, location=New York
+**Terms can be any experience**: parks, museums, arcades, seasonal events, food, cafés, outdoor activities.
 
-Now extract from this request:
-\"{user_question}\"
+User: "{user_message}"
+
+Reply with either:
+- a follow-up question
+OR
+- the exact format: term=..., location=...
 """
 
-    extraction_response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You extract Yelp search parameters from user requests."},
-            {"role": "user", "content": extraction_prompt}
+            {"role": "system", "content": "You help plan great date ideas using Yelp."},
+            {"role": "user", "content": prompt}
         ]
     )
 
-    extracted = extraction_response['choices'][0]['message']['content']
+    reply = response.choices[0].message.content.strip()
+
+    # 2️⃣ If follow-up, return it
+    if not reply.startswith("term="):
+        return {"followUp": reply}
+
+    # 3️⃣ Parse term and location
     term, location = "", ""
-    if "term=" in extracted and "location=" in extracted:
-        parts = extracted.split(", ")
-        for part in parts:
-            if part.startswith("term="):
-                term = part.replace("term=", "").strip()
-            elif part.startswith("location="):
-                location = part.replace("location=", "").strip()
+    parts = reply.split(",")
+    for part in parts:
+        if part.startswith("term="):
+            term = part.replace("term=", "").strip()
+        elif part.startswith("location="):
+            location = part.replace("location=", "").strip()
 
-    if not term or not location:
-        return {"error": "Could not extract term or location."}
-
-    # Step 2: Query Yelp API
-    yelp_headers = {"Authorization": f"Bearer {YELP_API_KEY}"}
-    yelp_params = {"term": term, "location": location, "limit": 3}
-    yelp_response = requests.get(YELP_API_URL, headers=yelp_headers, params=yelp_params)
+    # 4️⃣ Query Yelp
+    headers = {"Authorization": f"Bearer {YELP_API_KEY}"}
+    params = {
+        "term": term,
+        "location": location,
+        "sort_by": "best_match",
+        "limit": 5
+    }
+    yelp_response = requests.get(YELP_ENDPOINT, headers=headers, params=params)
     yelp_data = yelp_response.json()
 
-    # Step 3: Summarize with OpenAI (optional)
-    summary_prompt = f"Summarize the following Yelp business listings as date ideas:\n{yelp_data}"
+    # Format Yelp results for summarization
+    business_info = []
+    for biz in yelp_data.get("businesses", []):
+        business_info.append(f"{biz['name']} ({biz['categories'][0]['title']}, {biz['location']['address1']})")
 
-    summary_response = openai.ChatCompletion.create(
+    yelp_text = "\n".join(business_info)
+
+    # 5️⃣ Generate summary
+    summary_prompt = f"""
+You are an AI Date Planner.
+
+Here are some places:
+
+{yelp_text}
+
+Write a friendly, engaging summary suggesting these as date ideas.
+Be creative—mix different experiences (food, parks, games, etc.).
+"""
+
+    summary_response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You summarize date ideas using Yelp data."},
+            {"role": "system", "content": "You help plan fun, thoughtful dates."},
             {"role": "user", "content": summary_prompt}
         ]
     )
 
-    summary = summary_response['choices'][0]['message']['content']
+    summary = summary_response.choices[0].message.content.strip()
 
-    return {
-        "summary": summary,
-        "raw_results": yelp_data  # optional: helpful for debugging
-    }
+    return {"summary": summary}
