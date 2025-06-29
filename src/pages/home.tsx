@@ -12,26 +12,33 @@ const Home: React.FC = () => {
   ]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Scroll to bottom when messages update
+  // Auto-scroll when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Auto-grow textarea height
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // Clear input right away
+    const userMessage = input.trim();
+    setMessages((prev) => [...prev, { type: "user", text: userMessage }]);
     setInput("");
-
-    // Add user message
-    setMessages((prev) => [...prev, { type: "user", text: input }]);
 
     try {
       const res = await fetch("http://localhost:8000/api/plan-date", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userMessage }),
       });
 
       const data = await res.json();
@@ -83,6 +90,7 @@ const Home: React.FC = () => {
       <div className={styles.inputBar}>
         <div className={styles.inputWrapper}>
           <textarea
+            ref={textAreaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}

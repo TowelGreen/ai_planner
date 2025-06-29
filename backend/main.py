@@ -4,13 +4,15 @@ from pydantic import BaseModel
 import os
 import requests
 from openai import OpenAI
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
+dotenv_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".env")
 
-load_dotenv() 
+load_dotenv(dotenv_path,override=True) 
 
-# Initialize OpenAI client
+# Initialize OpenAI client       
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
 
 # Yelp API info
 YELP_API_KEY = os.environ["YELP_API_KEY"]
