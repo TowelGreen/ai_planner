@@ -1,0 +1,61 @@
+.historyWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.actions {
+  margin-bottom: 1rem;
+}
+
+.clearButton {
+  background: #ff6666;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.clearButton:hover {
+  background: #e05555;
+}
+
+.historyItem {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fafafa;
+}
+
+.timestamp {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.userBubble {
+  background: #d9f4ff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  align-self: flex-end;
+}
+
+.botBubble {
+  background: #eee;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.businessList {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+}
