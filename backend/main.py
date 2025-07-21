@@ -127,10 +127,18 @@ Choose your mode and respond with a single line of valid JSON.
 
         if mode == "recommend":
             logging.info("Handling 'recommend' mode.")
+            recommended = []
+            response_text = parsed_response.get("response", "")
+
+            for biz in last_results:
+                if biz["name"].lower() in response_text.lower():
+                    recommended.append(biz)
+                    
             return {
                 "followUp": parsed_response.get("response", "I'd recommend taking a look at the ones with the highest ratings!"),
                 "knownTerm": known_terms_raw,
-                "knownLocation": known_location
+                "knownLocation": known_location,
+                "businesses": recommended
             }
 
         elif mode == "clarify":

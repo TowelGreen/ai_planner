@@ -63,7 +63,7 @@ const Home: React.FC = () => {
     setMessages([
       {
         type: "bot",
-        text: "🤖 Hi! I’m your AI Date Planner. What kind of date are you thinking of?",
+        text: "Hi! I’m your AI Date Planner. What kind of date are you thinking of?",
       },
     ]);
     setKnownTerm("");
@@ -98,7 +98,7 @@ const Home: React.FC = () => {
         setMessages([
           {
             type: "bot",
-            text: "🤖 Hi! I’m your AI Date Planner. What kind of date are you thinking of?",
+            text: "Hi! I’m your AI Date Planner. What kind of date are you thinking of?",
           },
         ]);
       }
@@ -170,19 +170,28 @@ const Home: React.FC = () => {
       setKnownTerm(data.knownTerm || "");
       setKnownLocation(data.knownLocation || "");
 
-      if ("followUp" in data) {
-        setMessages((prev) => [...prev, { type: "bot", text: data.followUp }]);
-      } else if ("businesses" in data && data.businesses.length > 0) {
-        const botResponse = {
-          type: "bot" as const,
-          text: "Here are some options you might like:",
-          businesses: data.businesses,
+      if (
+        "followUp" in data ||
+        ("businesses" in data && data.businesses.length > 0)
+      ) {
+        const botResponse: Message = {
+          type: "bot",
+          text:
+            "followUp" in data
+              ? data.followUp
+              : "Here are some options you might like:",
+          businesses: "businesses" in data ? data.businesses : [],
         };
+
         const finalMessages = [...newMessagesWithUser, botResponse];
         setMessages(finalMessages);
 
-        setLastResults(data.businesses); // 🆕 save results for next call
+        // ✅ Only set last results if we have valid businesses
+        if (botResponse.businesses?.length) {
+          setLastResults(botResponse.businesses);
+        }
 
+        // ✅ Save to local history
         const historyItem = {
           timestamp: new Date().toISOString(),
           messages: finalMessages,
@@ -278,7 +287,7 @@ const Home: React.FC = () => {
         ))}
         {isLoading && (
           <div className={styles.botBubble}>
-            <em>🤖 Typing...</em>
+            <em>Typing...</em>
           </div>
         )}
         <div ref={messagesEndRef} />
